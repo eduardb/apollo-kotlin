@@ -90,7 +90,7 @@ class RealResponseWriter(private val operationVariables: Operation.Variables, pr
     buffer[field.responseName] = FieldDescriptor(field, value)
   }
 
-  private fun rawFieldValues(buffer: Map<String, FieldDescriptor>): Map<String, Any?> {
+  internal fun rawFieldValues(buffer: Map<String, FieldDescriptor>): Map<String, Any?> {
     val fieldValues: MutableMap<String, Any?> = LinkedHashMap()
     for ((fieldResponseName, value) in buffer) {
       val fieldValue = value.value
