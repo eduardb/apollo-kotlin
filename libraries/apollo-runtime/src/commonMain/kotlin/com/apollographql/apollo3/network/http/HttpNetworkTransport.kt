@@ -32,6 +32,7 @@ import kotlinx.coroutines.flow.filterNot
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
+import okio.Buffer
 import okio.use
 
 class HttpNetworkTransport
@@ -101,6 +102,9 @@ private constructor(
       httpResponse: HttpResponse,
   ): ApolloResponse<D> {
     val response = try {
+      val sink = Buffer()
+      httpResponse.body!!.readAll(sink)
+      println("XXX httpResponse.body!!.jsonReader() = ${sink.readByteString()}")
       operation.parseJsonResponse(
           jsonReader = httpResponse.body!!.jsonReader(),
           customScalarAdapters = customScalarAdapters

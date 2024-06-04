@@ -11,6 +11,7 @@ dependencies {
 }
 
 android {
+  namespace = "com.apollographql.apollo3.compose"
   compileSdk = golatac.version("android.sdkversion.compile").toInt()
 
   defaultConfig {

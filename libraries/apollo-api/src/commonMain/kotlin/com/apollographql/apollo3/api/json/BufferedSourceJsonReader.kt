@@ -143,6 +143,9 @@ class BufferedSourceJsonReader(private val source: BufferedSource) : JsonReader 
   private fun doPeek(): Int {
     val peekStack = stack[stackSize - 1]
 
+    println("XXX: stack = ${stack.joinToString()}")
+    println("XXX: peekStack = $peekStack")
+
     when (peekStack) {
       JsonScope.EMPTY_ARRAY -> {
         stack[stackSize - 1] = JsonScope.NONEMPTY_ARRAY
@@ -195,6 +198,7 @@ class BufferedSourceJsonReader(private val source: BufferedSource) : JsonReader 
         // Look for a colon before the value.
         val c = nextNonWhitespace(true)
         buffer.readByte() // Consume ':'.
+        println("XXX: c = ${c.toChar()}")
         if (c.toChar() != ':') throwSyntaxError("Expected ':'")
       }
 
@@ -308,8 +312,10 @@ class BufferedSourceJsonReader(private val source: BufferedSource) : JsonReader 
     var fitsInLong = true
     var last = NUMBER_CHAR_NONE
     var i = 0
+    println("XXX: peekNumber value: $value")
     loop@ while (source.request(i + 1.toLong())) {
       val c = buffer[i.toLong()]
+      println("XXX: c: $c '${c.toInt().toChar()}', last: $last")
       when (c.toInt().toChar()) {
         '-' -> {
           when (last) {
@@ -357,16 +363,23 @@ class BufferedSourceJsonReader(private val source: BufferedSource) : JsonReader 
 
           when (last) {
             NUMBER_CHAR_SIGN, NUMBER_CHAR_NONE -> {
-              value = -(c - '0'.code.toByte()).toLong()
+//              value = -(c - '0'.code.toByte()).toLong()
+              value = (c - '0'.code.toByte()).toLong()
+
               last = NUMBER_CHAR_DIGIT
+              println("XXX: last: $last, value: $value")
             }
 
             NUMBER_CHAR_DIGIT -> {
               if (value == 0L) {
                 return PEEKED_NONE // Leading '0' prefix is not allowed (since it could be octal).
               }
-              val newValue = value * 10 - (c - '0'.code.toByte())
+//              val newValue = value * 10 - (c - '0'.code.toByte())
+              val newValue = value * 10 + (c - '0'.code.toByte())
+
+              println("XXX: newValue: $newValue")
               fitsInLong = fitsInLong and (value > MIN_INCOMPLETE_INTEGER) || value == MIN_INCOMPLETE_INTEGER && newValue < value
+              println("XXX: fitsInLong: $fitsInLong")
               value = newValue
             }
 
@@ -383,9 +396,13 @@ class BufferedSourceJsonReader(private val source: BufferedSource) : JsonReader 
       i++
     }
 
+    println("XXX: last: $last, fitsInLong: $fitsInLong, value: $value, negative: $negative")
+
     // We've read a complete number. Decide if it's a PEEKED_LONG or a PEEKED_NUMBER.
     return if (last == NUMBER_CHAR_DIGIT && fitsInLong && (value != Long.MIN_VALUE || negative)) {
-      peekedLong = if (negative) value else -value
+//      peekedLong = if (negative) value else -value
+      peekedLong = if (negative) -value else value
+
       buffer.skip(i.toLong())
       PEEKED_LONG.also { peeked = it }
     } else if (last == NUMBER_CHAR_DIGIT || last == NUMBER_CHAR_FRACTION_DIGIT || last == NUMBER_CHAR_EXP_DIGIT) {
@@ -607,10 +624,13 @@ class BufferedSourceJsonReader(private val source: BufferedSource) : JsonReader 
   }
 
   override fun nextInt(): Int {
+    println("XXXX peeked: $peeked")
     val p = peeked.takeUnless { it == PEEKED_NONE } ?: doPeek()
+    println("XXXX p: $p")
     when {
       p == PEEKED_LONG -> {
         val result = peekedLong.toInt()
+        println("XXXX result: $result")
         if (peekedLong != result.toLong()) { // Make sure no precision was lost casting to 'int'.
           throw JsonDataException("Expected an int but was " + peekedLong
               + " at path " + getPath())

@@ -6,7 +6,7 @@ plugins {
 apolloLibrary {
   javaModuleName("com.apollographql.apollo3.adapter")
   mpp {
-    withLinux.set(false)
+  withLinux.set(false)
   }
 }
 
@@ -18,10 +18,10 @@ kotlin {
         api(golatac.lib("kotlinx.datetime"))
       }
     }
-    findByName("jsMain")?.apply {
-      dependencies {
-        implementation(npm("big.js", "5.2.2"))
-      }
-    }
+//    findByName("jsMain")?.apply {
+//      dependencies {
+//        implementation(npm("big.js", "5.2.2"))
+//      }
+//    }
   }
 }

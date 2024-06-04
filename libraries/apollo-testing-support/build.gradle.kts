@@ -5,7 +5,7 @@ plugins {
 
 apolloLibrary {
   mpp {
-    withLinux.set(false)
+  withLinux.set(false)
   }
 }
 
@@ -30,17 +30,17 @@ kotlin {
       }
     }
 
-    findByName("jsMain")?.apply {
-      dependencies {
-        implementation(golatac.lib("kotlinx.nodejs"))
-        implementation(golatac.lib("kotlin.test.js"))
-        api(okioNodeJs())
-      }
-    }
-    findByName("jsTest")?.apply {
-      dependencies {
-        implementation(golatac.lib("kotlin.test.js"))
-      }
-    }
+//    findByName("jsMain")?.apply {
+//      dependencies {
+//        implementation(golatac.lib("kotlinx.nodejs"))
+//        implementation(golatac.lib("kotlin.test.js"))
+//        api(okioNodeJs())
+//      }
+//    }
+//    findByName("jsTest")?.apply {
+//      dependencies {
+//        implementation(golatac.lib("kotlin.test.js"))
+//      }
+//    }
   }
 }

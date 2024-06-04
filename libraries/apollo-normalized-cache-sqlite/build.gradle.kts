@@ -76,6 +76,7 @@ kotlin {
 }
 
 configure<com.android.build.gradle.LibraryExtension> {
+  namespace = "com.apollographql.apollo3.cache.normalized.sql"
   compileSdk = golatac.version("android.sdkversion.compile").toInt()
 
   defaultConfig {
